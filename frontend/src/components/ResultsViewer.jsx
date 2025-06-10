@@ -86,13 +86,13 @@ const ResultsViewer = ({ results }) => {
             Podsumowanie:
           </Typography>
           <Typography variant="body1">
-            Oryginalny rozmiar: {summary.original_size}
+            Wejściowa liczba wierszy: {summary.original_size}
           </Typography>
           <Typography variant="body1">
-            Spójny rozmiar: {summary.consistent_size}
+            Liczba wierszy po usunięciu niespójności: {summary.consistent_size}
           </Typography>
           <Typography variant="body1">
-            Liczba usuniętych obiektów: {summary.removed_count}
+            Liczba zmodyfikowanych obiektów: {summary.removed_count}
           </Typography>
           {summary.rules_count && (
             <Typography variant="body1">
@@ -185,7 +185,7 @@ const ResultsViewer = ({ results }) => {
 
       <Paper sx={{ p: 2, mb: 2 }}>
         <Typography variant="subtitle1" gutterBottom>
-          Usunięte obiekty:
+          Liczba niespójnych obiektów:
         </Typography>
         <Typography variant="body1">
           {removed_objects && removed_objects.length > 0 ? removed_objects.join(', ') : 'Brak usuniętych obiektów'}
