@@ -28,18 +28,15 @@ const CalculationSteps = ({ steps }) => {
     const transformedData = {};
     const attributes = new Set();
     
-    // Extract all attributes from the data
     Object.values(data).forEach(obj => {
       if (obj) {
         Object.keys(obj).forEach(attr => attributes.add(attr));
       }
     });
     
-    // For each attribute, create a row
     attributes.forEach(attr => {
       transformedData[attr] = {};
       
-      // For each object id, add its value for this attribute
       Object.keys(data).forEach(objId => {
         if (data[objId] && data[objId][attr] !== undefined) {
           transformedData[attr][objId] = data[objId][attr];
