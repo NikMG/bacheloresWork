@@ -4,11 +4,11 @@ from typing import Dict, List, Any, Tuple
 def calculate_abstraction_classes(df: pd.DataFrame) -> Dict[str, List[str]]:
     """Calculate abstraction classes based on conditional attributes."""
     classes = {}
-    # Исключаем столбец с ID пациента и столбец решения
+    # Deleting ID and decision columns
     conditional_attrs = df.columns[1:-1]  
     
     for idx, row in df.iterrows():
-        # Создаем ключ из значений условных атрибутов
+        # Creating a key from the values of conditional attributes
         key = tuple(str(row[attr]).strip() for attr in conditional_attrs)
         if key not in classes:
             classes[key] = []
@@ -19,36 +19,28 @@ def calculate_lower_approximation(df: pd.DataFrame, classes: Dict[str, List[str]
     """Calculate lower approximation for given decision value."""
     lower_approx = []
     decision_value = str(decision_value).strip()
-    print(f"Calculating lower approximation for decision value: {decision_value}")
     
     for key, objects in classes.items():
-        # Проверяем, все ли объекты в классе имеют одинаковое решение
+        # Checking if all objects in the class have the same decision
         class_decisions = [str(df.loc[int(obj), df.columns[-1]]).strip() for obj in objects]
-        print(f"Class {key} decisions: {class_decisions}")
         
         if all(dec == decision_value for dec in class_decisions):
-            print(f"Adding objects {objects} to lower approximation")
             lower_approx.extend(objects)
     
-    print(f"Final lower approximation: {lower_approx}")
     return lower_approx
 
 def calculate_upper_approximation(df: pd.DataFrame, classes: Dict[str, List[str]], decision_value: Any) -> List[str]:
     """Calculate upper approximation for given decision value."""
     upper_approx = []
     decision_value = str(decision_value).strip()
-    print(f"Calculating upper approximation for decision value: {decision_value}")
     
     for key, objects in classes.items():
-        # Проверяем, есть ли хотя бы один объект с данным решением
+        # Checking if there is at least one object with the given decision
         class_decisions = [str(df.loc[int(obj), df.columns[-1]]).strip() for obj in objects]
-        print(f"Class {key} decisions: {class_decisions}")
         
         if any(dec == decision_value for dec in class_decisions):
-            print(f"Adding objects {objects} to upper approximation")
             upper_approx.extend(objects)
     
-    print(f"Final upper approximation: {upper_approx}")
     return upper_approx
 
 def calculate_accuracy(lower_approx: List[str], upper_approx: List[str]) -> float:
@@ -57,7 +49,6 @@ def calculate_accuracy(lower_approx: List[str], upper_approx: List[str]) -> floa
         print("Upper approximation is empty, returning 0.0")
         return 0.0
     accuracy = len(lower_approx) / len(upper_approx)
-    print(f"Calculated accuracy: {accuracy} (lower: {len(lower_approx)}, upper: {len(upper_approx)})")
     return accuracy
 
 def process_qualitative(df: pd.DataFrame) -> Dict[str, Any]:

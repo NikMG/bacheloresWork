@@ -17,15 +17,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.post("/upload")
-async def upload_file(file: UploadFile = File(...)):
-    try:
-        # Read the uploaded file
-        df = pd.read_csv(file.file, sep=';', encoding='latin1')
-        return {"message": "File uploaded successfully", "data": df.to_dict()}
-    except Exception as e:
-        return {"error": str(e)}
-
 @app.post("/process")
 async def process_data(
     file: UploadFile = File(...),
@@ -52,29 +43,3 @@ async def process_data(
     except Exception as e:
         print(f"Error in process_data: {str(e)}")
         return {"error": str(e)}
-
-@app.post("/rules")
-async def generate_rules(data: Dict[str, Any]):
-    try:
-        df = pd.DataFrame(data)
-        rules = generate_decision_rules(df)
-        return {"rules": rules}
-    except Exception as e:
-        return {"error": str(e)}
-
-@app.post("/calculation-steps")
-async def get_calculation_steps(data: Dict[str, Any], method: str = Query(..., description="Method to use: qualitative or quantitative")):
-    try:
-        df = pd.DataFrame(data)
-        steps = get_calculation_steps_for_method(df, method)
-        return {"steps": steps}
-    except Exception as e:
-        return {"error": str(e)}
-
-def generate_decision_rules(df: pd.DataFrame) -> List[Dict[str, Any]]:
-    # TODO: Implement rule generation
-    pass
-
-def get_calculation_steps_for_method(df: pd.DataFrame, method: str) -> List[Dict[str, Any]]:
-    # TODO: Implement calculation steps
-    pass 

@@ -25,11 +25,11 @@ def calculate_rule_confidence(df: pd.DataFrame, condition: Dict[str, Any], decis
 def generate_rules(df: pd.DataFrame) -> List[Dict[str, Any]]:
     """Generate all possible rules from the dataset."""
     rules = []
-    # Исключаем столбец с ID пациента и столбец решения
+    # Deleting ID and decision columns
     conditional_attrs = df.columns[1:-1]
     decision_attr = df.columns[-1]
     
-    # Группируем по условным атрибутам
+    # Grouping by conditional attributes
     groups = df.groupby(list(conditional_attrs))
     
     for condition_values, group in groups:
@@ -37,13 +37,13 @@ def generate_rules(df: pd.DataFrame) -> List[Dict[str, Any]]:
         decisions = group[decision_attr].value_counts()
         
         for decision_value, count in decisions.items():
-            # Поддержка - количество объектов с данным условием и решением / общее количество объектов
+            # Support - number of objects with this condition and decision / total number of objects
             support = len(group[group[decision_attr] == decision_value]) / len(df)
             
-            # Достоверность - количество объектов с данным условием и решением / количество объектов с данным условием
+            # Confidence - number of objects with this condition and decision / number of objects with this condition
             confidence = len(group[group[decision_attr] == decision_value]) / len(group)
             
-            # Вес правила - произведение поддержки и достоверности
+            # Rule weight - product of support and confidence
             weight = support * confidence
             
             rules.append({
@@ -117,7 +117,7 @@ def process_quantitative(df: pd.DataFrame) -> Dict[str, Any]:
         # Step 3: Group rules by conditions
         condition_groups = {}
         for rule in serializable_rules:
-            # Создаем ключ из значений условных атрибутов
+            # Creating a key from the values of conditional attributes
             condition_items = sorted((k, v) for k, v in rule["condition"].items() if k != 'Pacjent')
             condition_key = str(condition_items)
             if condition_key not in condition_groups:
@@ -127,26 +127,26 @@ def process_quantitative(df: pd.DataFrame) -> Dict[str, Any]:
         # Find rules with lowest weights for each condition group
         objects_to_remove = []
         for idx, row in df.iterrows():
-            # Создаем ключ из значений условных атрибутов для текущего объекта
+            # Creating a key from the values of conditional attributes for the current object
             condition_items = sorted((k, str(v)) for k, v in row.items() if k != decision_attr and k != 'Pacjent')
             row_condition = str(condition_items)
             
             if row_condition in condition_groups:
                 rules_for_condition = condition_groups[row_condition]
-                if len(rules_for_condition) > 1:  # Если есть несколько правил для этих условий
-                    # Находим минимальный вес среди правил
+                if len(rules_for_condition) > 1:  # If there are several rules for these conditions
+                    # Finding the minimum weight among the rules
                     min_weight = min(r["weight"] for r in rules_for_condition)
-                    # Находим правила с минимальным весом
+                    # Finding rules with the minimum weight
                     min_weight_rules = [r for r in rules_for_condition if r["weight"] == min_weight]
                     
                     if len(min_weight_rules) > 1:
-                        # Если есть несколько правил с минимальным весом,
-                        # выбираем правило с наименее частым решением
+                        # If there are several rules with the minimum weight,
+                        # we select the rule with the least frequent decision
                         min_freq_rule = min(min_weight_rules, key=lambda r: r["decision_frequency"])
                         if str(row[decision_attr]) == min_freq_rule["decision"]:
                             objects_to_remove.append(str(idx))
                     else:
-                        # Если только одно правило с минимальным весом
+                        # If there is only one rule with the minimum weight
                         if str(row[decision_attr]) == min_weight_rules[0]["decision"]:
                             objects_to_remove.append(str(idx))
         
